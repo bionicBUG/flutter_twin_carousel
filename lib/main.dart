@@ -40,23 +40,57 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  PageController c1 = PageController(viewportFraction: 0.8);
-  PageController c2 = PageController(viewportFraction: 0.8);
+  late PageController c1;
+  late PageController c2;
   bool s1 = false;
   bool s2 = false;
+  int _previousPage = 0;
+
+  void reset() {
+    s1 = false;
+    s2 = false;
+  }
+
+  void _on1Scroll() {
+    if (s2) return;
+
+    s1 = true;
+    if (c1.page!.toInt() == c1.page) {
+      _previousPage = c1.page!.toInt();
+      reset();
+    }
+
+    c2.position.jumpTo(c1.position.pixels);
+  }
+
+  void _on2Scroll() {
+    if (s1) return;
+
+    s2 = true;
+    if (c2.page!.toInt() == c2.page) {
+      _previousPage = c2.page!.toInt();
+      reset();
+    }
+
+    c1.position.jumpTo(c2.position.pixels);
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    c1.addListener(() {
-      c2.position.jumpTo(c1.offset);
-    });
+    c1 = PageController(viewportFraction: 0.8)
+      ..addListener(() {
+        _on1Scroll();
+      });
+    c2 = PageController(viewportFraction: 0.8)
+      ..addListener(() {
+        _on2Scroll();
+      });
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
